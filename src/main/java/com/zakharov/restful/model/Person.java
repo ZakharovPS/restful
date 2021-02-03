@@ -1,7 +1,11 @@
 package com.zakharov.restful.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.util.Date;
 
 @Entity
@@ -10,18 +14,20 @@ public class Person {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @NotBlank
     private String name;
+    @NotBlank
     private String surname;
     private int age;
     private float growth;
+    @NotNull
     @Temporal(TemporalType.DATE)
     private Date birth_date;
     private boolean married;
 
     public Person() { }
 
-    public Person(int id, String name, String surname, int age, float growth, Date birth_date, boolean married) {
-        this.id = id;
+    public Person(String name, String surname, int age, float growth, Date birth_date, boolean married) {
         this.name = name;
         this.surname = surname;
         this.age = age;

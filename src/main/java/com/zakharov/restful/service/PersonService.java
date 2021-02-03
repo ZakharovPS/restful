@@ -5,7 +5,7 @@ import java.util.List;
 public interface PersonService {
     void create(Person person);
     List<Person> readAll();
-    Person read(int id);
+    Person readById(int id);
     boolean update(Person person, int id);
     boolean delete(int id);
 }

@@ -28,8 +28,11 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public Person read(int id) {
-        return personRepository.getOne(id);
+    public Person readById(int id) {
+        if (personRepository.existsById(id)) {
+            return personRepository.getOne(id);
+        }
+        return null;
     }
 
     @Override
