@@ -17,9 +17,9 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/people")
 public class PersonController {
+
     private final PersonService personService;
 
-    @Autowired
     public PersonController(PersonService personService) {
         this.personService = personService;
     }
@@ -36,7 +36,7 @@ public class PersonController {
     public ResponseEntity<?> readAll() throws EmptyDBException {
         final List<Person> people = personService.readAll();
         if (!people.isEmpty()) {
-            logger.info("All people have been got");
+            logger.info("All people have been received");
             return new ResponseEntity<>(people, HttpStatus.OK);
         }
         else throw new EmptyDBException();
@@ -46,7 +46,7 @@ public class PersonController {
     public ResponseEntity<?> readById(@PathVariable(name = "id") int id) throws EntityNotFoundException {
         final Person person = personService.readById(id);
         if (person != null) {
-            logger.info("Person with id = " + id + "has been got");
+            logger.info("Person with id = " + id + " has been received");
             return new ResponseEntity<>(person, HttpStatus.OK);
         }
         else throw new EntityNotFoundException(id);
