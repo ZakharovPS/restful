@@ -1,7 +1,6 @@
 package com.zakharov.restful;
 
-import com.zakharov.restful.exception.EmptyDBException;
-import com.zakharov.restful.exception.EntityNotFoundException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zakharov.restful.model.Person;
 import com.zakharov.restful.repository.PersonRepository;
 import org.junit.jupiter.api.*;
@@ -9,31 +8,38 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.security.test.context.support.WithMockUser;
-import java.util.Date;
+
+import java.time.LocalDate;
+import java.util.Arrays;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:application.properties")
-@AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureMockMvc()
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@WithMockUser(username="admin",roles={"ADMIN"})
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class RestfulApplicationTests {
 
+    @Autowired
+    private ObjectMapper objectMapper;
     @Autowired
     private PersonRepository repository;
     @Autowired
     private MockMvc mockMvc;
 
-    @AfterEach
     @BeforeAll
     public void resetDB() {
         repository.deleteAll();
     }
 
     @Test
+    @Order(1)
     public void getAllPeopleFromEmptyDB() throws Exception {
 
         mockMvc.perform(
@@ -42,67 +48,7 @@ class RestfulApplicationTests {
     }
 
     @Test
-    public void getAllPeopleFromNoEmptyDB() throws Exception {
-        createTestPerson("Иван", "Иванов", 20, 1.8f, new Date(), false);
-        createTestPerson("Петр", "Петров", 10, 1.7f, new Date(), true);
-        mockMvc.perform(
-                get("/people"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-    }
-
-    @Test
-    public void createPerson() throws Exception {
-        mockMvc.perform(
-                post("/people")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                        {"name":"Иван","surname":"Иванов","age":20,"growth":1.8,"birth_date":"2001-01-01","married":false}
-                        """))
-                .andExpect(status().isCreated());
-    }
-
-    @Test
-    public void requestWithNullFieldInJSON() throws Exception {
-        mockMvc.perform(
-                post("/people")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                        {"surname":"Иванов","age":20,"growth":1.8,"birth_date":"2001-01-01","married":false}
-                        """))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void requestWithMalformedJSON() throws Exception {
-        mockMvc.perform(
-                post("/people")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                        {"name":"Иван","surname":"Иванов","age":"двадцать","growth":1.8,"birth_date":"2001-01-01","married":false}
-                        """))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void requestWithIncorrectArgument() throws Exception {
-        mockMvc.perform(
-                get("/people/abc"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void getOneExistingPerson() throws Exception {
-
-        int id = createTestPerson("Иван", "Иванов", 20, 1.8f, new Date(), false).getId();
-
-        mockMvc.perform(
-                get("/people/{id}", id))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-    }
-
-    @Test
+    @Order(2)
     public void getOneNoExistingPerson() throws Exception {
 
         mockMvc.perform(
@@ -111,44 +57,19 @@ class RestfulApplicationTests {
     }
 
     @Test
-    public void updateExistingPerson() throws Exception {
-
-        int id = createTestPerson("Иван", "Иванов", 20, 1.8f, new Date(), false).getId();
-
-        mockMvc.perform(
-                put("/people/{id}", id)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                        {"name":"Петр","surname":"Петров","age":10,"growth":1.7,"birth_date":"2001-01-01","married":true}
-                        """))
-                .andExpect(status().isOk());
-
-    }
-
-    @Test
+    @Order(3)
     public void updateNoExistingPerson() throws Exception {
-
+        Person person = new Person("Петр", "Петров", 1.7f, LocalDate.of(2001, 1, 1), true);
         mockMvc.perform(
                 put("/people/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                        {"name":"Петр","surname":"Петров","age":10,"growth":1.7,"birth_date":"2001-01-01","married":true}
-                        """))
+                        .content(objectMapper.writeValueAsString(person)))
                 .andExpect(status().isNotFound());
 
     }
 
     @Test
-    public void deleteExistingPerson() throws Exception {
-
-        int id = createTestPerson("Иван", "Иванов", 20, 1.8f, new Date(), false).getId();
-
-        mockMvc.perform(
-                delete("/people/{id}", id))
-                .andExpect(status().isOk());
-    }
-
-    @Test
+    @Order(4)
     public void deleteNoExistingPerson() throws Exception {
 
         mockMvc.perform(
@@ -156,8 +77,64 @@ class RestfulApplicationTests {
                 .andExpect(status().isNotFound());
     }
 
-    private Person createTestPerson(String name, String surname, int age, float growth, Date birth_date, boolean married) {
-        Person person = new Person(name, surname, age, growth, birth_date, married);
+    @Test
+    @Order(5)
+    public void getAllPeopleFromNoEmptyDB() throws Exception {
+        Person person1 = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.now(), false);
+        Person person2 = createTestPerson("Петр", "Петров", 1.7f, LocalDate.now(), true);
+        mockMvc.perform(
+                get("/people"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(person1, person2))));
+    }
+
+    @Test
+    public void getOneExistingPerson() throws Exception {
+
+        Person person = createTestPerson("Петр", "Петров", 1.7f, LocalDate.now(), true);
+
+        mockMvc.perform(
+                get("/people/{id}", person.getId()))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(person)));
+    }
+
+    @Test
+    public void createPerson() throws Exception {
+        Person person = new Person("Иван", "Иванов", 1.8f, LocalDate.of(2001, 1, 1), false);
+        mockMvc.perform(
+                post("/people")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(person)))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    public void updateExistingPerson() throws Exception {
+
+        int id = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.now(), false).getId();
+        Person person = new Person("Петр", "Петров", 1.7f, LocalDate.of(2001, 1, 1), true);
+
+        mockMvc.perform(
+                put("/people/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(person)))
+                .andExpect(status().isOk());
+
+    }
+
+    @Test
+    public void deleteExistingPerson() throws Exception {
+
+        int id = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.now(), false).getId();
+
+        mockMvc.perform(
+                delete("/people/{id}", id))
+                .andExpect(status().isOk());
+    }
+
+    private Person createTestPerson(String name, String surname, float growth, LocalDate birth_date, boolean married) {
+        Person person = new Person(name, surname, growth, birth_date, married);
         return repository.save(person);
     }
 }

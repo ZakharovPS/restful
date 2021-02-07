@@ -1,12 +1,10 @@
 package com.zakharov.restful.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -18,21 +16,18 @@ public class Person {
     private String name;
     @NotBlank
     private String surname;
-    private int age;
     private float growth;
     @NotNull
-    @Temporal(TemporalType.DATE)
-    private Date birth_date;
+    private LocalDate birthDate;
     private boolean married;
 
     public Person() { }
 
-    public Person(String name, String surname, int age, float growth, Date birth_date, boolean married) {
+    public Person(String name, String surname, float growth, LocalDate birthDate, boolean married) {
         this.name = name;
         this.surname = surname;
-        this.age = age;
         this.growth = growth;
-        this.birth_date = birth_date;
+        this.birthDate = birthDate;
         this.married = married;
     }
 
@@ -60,14 +55,6 @@ public class Person {
         this.surname = surname;
     }
 
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
     public float getGrowth() {
         return growth;
     }
@@ -76,12 +63,12 @@ public class Person {
         this.growth = growth;
     }
 
-    public Date getBirth_date() {
-        return birth_date;
+    public LocalDate getBirth_date() {
+        return birthDate;
     }
 
-    public void setBirth_date(Date birthDate) {
-        this.birth_date = birthDate;
+    public void setBirth_date(LocalDate birthDate) {
+        this.birthDate = birthDate;
     }
 
     public boolean isMarried() {
