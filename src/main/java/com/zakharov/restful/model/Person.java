@@ -1,23 +1,23 @@
 package com.zakharov.restful.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.zakharov.restful.validator.BirthDate;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 import java.time.LocalDate;
 
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Person {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @NotBlank
     private String name;
     @NotBlank
     private String surname;
+    @Positive @Max(3)
     private float growth;
-    @NotNull
+    @BirthDate
     private LocalDate birthDate;
     private boolean married;
 

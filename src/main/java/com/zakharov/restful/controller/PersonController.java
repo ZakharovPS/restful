@@ -37,37 +37,27 @@ public class PersonController {
     @GetMapping()
     public ResponseEntity<?> readAll() throws EmptyDBException {
         final List<Person> people = personService.readAll();
-        if (!people.isEmpty()) {
-            return new ResponseEntity<>(people, HttpStatus.OK);
-        }
-        else throw new EmptyDBException();
+        return new ResponseEntity<>(people, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping(value = "/{id}")
     public ResponseEntity<?> readById(@PathVariable(name = "id") int id) throws EntityNotFoundException {
         final Person person = personService.readById(id);
-        if (person != null) {
-            return new ResponseEntity<>(person, HttpStatus.OK);
-        }
-        else throw new EntityNotFoundException(id);
+        return new ResponseEntity<>(person, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(value = "/{id}")
     public ResponseEntity<?> update(@PathVariable(name = "id") int id, @Valid @RequestBody Person person) throws EntityNotFoundException {
-        if (personService.update(person, id)) {
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-        else throw new EntityNotFoundException(id);
+        personService.update(person, id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<?> delete(@PathVariable(name = "id") int id) throws EntityNotFoundException {
-        if (personService.delete(id)) {
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-        else throw new EntityNotFoundException(id);
+        personService.delete(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

@@ -80,8 +80,8 @@ class RestfulApplicationTests {
     @Test
     @Order(5)
     public void getAllPeopleFromNoEmptyDB() throws Exception {
-        Person person1 = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.now(), false);
-        Person person2 = createTestPerson("Петр", "Петров", 1.7f, LocalDate.now(), true);
+        Person person1 = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.of(2001, 1, 1), false);
+        Person person2 = createTestPerson("Петр", "Петров", 1.7f, LocalDate.of(2001, 1, 1), true);
         mockMvc.perform(
                 get("/people"))
                 .andExpect(status().isOk())
@@ -91,7 +91,7 @@ class RestfulApplicationTests {
     @Test
     public void getOneExistingPerson() throws Exception {
 
-        Person person = createTestPerson("Петр", "Петров", 1.7f, LocalDate.now(), true);
+        Person person = createTestPerson("Петр", "Петров", 1.7f, LocalDate.of(2001, 1, 1), true);
 
         mockMvc.perform(
                 get("/people/{id}", person.getId()))
@@ -112,8 +112,8 @@ class RestfulApplicationTests {
     @Test
     public void updateExistingPerson() throws Exception {
 
-        int id = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.now(), false).getId();
-        Person person = new Person("Петр", "Петров", 1.7f, LocalDate.of(2001, 1, 1), true);
+        int id = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.of(2001, 1, 1), false).getId();
+        Person person = new Person("Петр", "Петров", 1.7f, LocalDate.of(2002, 2, 2), true);
 
         mockMvc.perform(
                 put("/people/{id}", id)
@@ -126,7 +126,7 @@ class RestfulApplicationTests {
     @Test
     public void deleteExistingPerson() throws Exception {
 
-        int id = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.now(), false).getId();
+        int id = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.of(2001, 1, 1), false).getId();
 
         mockMvc.perform(
                 delete("/people/{id}", id))

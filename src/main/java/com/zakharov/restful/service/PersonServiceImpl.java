@@ -1,8 +1,12 @@
 package com.zakharov.restful.service;
 
+import com.zakharov.restful.exception.EmptyDBException;
+import com.zakharov.restful.exception.EntityNotFoundException;
 import com.zakharov.restful.model.Person;
 import com.zakharov.restful.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,34 +27,36 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public List<Person> readAll() {
-        return personRepository.findAll();
+    public List<Person> readAll() throws EmptyDBException {
+        final List<Person> people = personRepository.findAll();
+        if (!people.isEmpty()) {
+            return people;
+        }
+        else throw new EmptyDBException();
     }
 
     @Override
-    public Person readById(int id) {
+    public Person readById(int id) throws EntityNotFoundException {
         if (personRepository.existsById(id)) {
             return personRepository.getOne(id);
         }
-        return null;
+        else throw new EntityNotFoundException(id);
     }
 
     @Override
-    public boolean update(Person person, int id) {
+    public void update(Person person, int id) throws EntityNotFoundException {
         if (personRepository.existsById(id)) {
             person.setId(id);
             personRepository.save(person);
-            return true;
         }
-        return false;
+        else throw new EntityNotFoundException(id);
     }
 
     @Override
-    public boolean delete(int id) {
+    public void delete(int id) throws EntityNotFoundException {
         if (personRepository.existsById(id)) {
             personRepository.deleteById(id);
-            return true;
         }
-        return false;
+        else throw new EntityNotFoundException(id);
     }
 }

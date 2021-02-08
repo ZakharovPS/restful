@@ -41,8 +41,8 @@ class SecurityTests {
     @Test
     @Order(1)
     public void getAllPeopleWithAuthorization() throws Exception {
-        Person person1 = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.now(), false);
-        Person person2 = createTestPerson("Петр", "Петров",  1.7f, LocalDate.now(), true);
+        Person person1 = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.of(2001, 1, 1), false);
+        Person person2 = createTestPerson("Петр", "Петров",  1.7f, LocalDate.of(2001, 1, 1), true);
         mockMvc.perform(
                 get("/people"))
                 .andExpect(status().isOk())
@@ -51,8 +51,8 @@ class SecurityTests {
 
     @Test
     public void getAllPeopleWithoutAuthorization() throws Exception {
-        createTestPerson("Иван", "Иванов", 1.8f, LocalDate.now(), false);
-        createTestPerson("Петр", "Петров", 1.7f, LocalDate.now(), true);
+        createTestPerson("Иван", "Иванов", 1.8f, LocalDate.of(2001, 1, 1), false);
+        createTestPerson("Петр", "Петров", 1.7f, LocalDate.of(2001, 1, 1), true);
         mockMvc.perform(
                 get("/people"))
                 .andExpect(status().isUnauthorized());
@@ -61,7 +61,7 @@ class SecurityTests {
     @WithMockUser(username="admin",roles={"USER","ADMIN"})
     @Test
     public void getOnePersonWithAuthorization() throws Exception {
-        Person person = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.now(), false);
+        Person person = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.of(2001, 1, 1), false);
 
         mockMvc.perform(
                 get("/people/{id}", person.getId()))
@@ -71,7 +71,7 @@ class SecurityTests {
 
     @Test
     public void getOnePersonWithoutAuthorization() throws Exception {
-        int id = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.now(), false).getId();
+        int id = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.of(2001, 1, 1), false).getId();
 
         mockMvc.perform(
                 get("/people/{id}", id))
@@ -113,7 +113,7 @@ class SecurityTests {
     @WithMockUser(username="admin",roles={"ADMIN"})
     @Test
     public void updatePersonWithAuthorization() throws Exception {
-        int id = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.now(), false).getId();
+        int id = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.of(2001, 1, 1), false).getId();
         Person person = new Person("Петр", "Петров", 1.7f, LocalDate.of(2001, 1, 1), true);
         mockMvc.perform(
                 put("/people/{id}", id)
@@ -124,7 +124,7 @@ class SecurityTests {
 
     @Test
     public void updatePersonWithoutAuthorization() throws Exception {
-        int id = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.now(), false).getId();
+        int id = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.of(2001, 1, 1), false).getId();
         Person person = new Person("Петр", "Петров", 1.7f, LocalDate.of(2001, 1, 1), true);
         mockMvc.perform(
                 put("/people/{id}", id)
@@ -136,7 +136,7 @@ class SecurityTests {
     @WithMockUser("USER")
     @Test
     public void updatePersonWithRoleUser() throws Exception {
-        int id = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.now(), false).getId();
+        int id = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.of(2001, 1, 1), false).getId();
         Person person = new Person("Петр", "Петров", 1.7f, LocalDate.of(2001, 1, 1), true);
         mockMvc.perform(
                 put("/people/{id}", id)
@@ -148,7 +148,7 @@ class SecurityTests {
     @WithMockUser(username="admin",roles={"ADMIN"})
     @Test
     public void deletePersonWithAuthorization() throws Exception {
-        int id = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.now(), false).getId();
+        int id = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.of(2001, 1, 1), false).getId();
 
         mockMvc.perform(
                 delete("/people/{id}", id))
@@ -157,7 +157,7 @@ class SecurityTests {
 
     @Test
     public void deletePersonWithoutAuthorization() throws Exception {
-        int id = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.now(), false).getId();
+        int id = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.of(2001, 1, 1), false).getId();
 
         mockMvc.perform(
                 delete("/people/{id}", id))
@@ -167,7 +167,7 @@ class SecurityTests {
     @WithMockUser("USER")
     @Test
     public void deletePersonWithRoleUser() throws Exception {
-        int id = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.now(), false).getId();
+        int id = createTestPerson("Иван", "Иванов", 1.8f, LocalDate.of(2001, 1, 1), false).getId();
 
         mockMvc.perform(
                 delete("/people/{id}", id))
